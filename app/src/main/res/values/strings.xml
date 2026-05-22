@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">跑马灯</string>
-    <string name="tab_general">常规</string>
-    <string name="tab_position">位置</string>
-    <string name="tab_style">线条样式</string>
-    <string name="tab_corner">圆角</string>
-    <string name="permission_needed">请授予悬浮窗权限</string>
-    <string name="saved_toast">配置已保存</string>
+    <string name="module_description">HyperOS 3 来消息跑马灯光效模块</string>
 </resources>
