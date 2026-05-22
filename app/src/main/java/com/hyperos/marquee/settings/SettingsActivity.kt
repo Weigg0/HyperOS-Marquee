@@ -2,7 +2,6 @@ package com.hyperos.marquee.settings
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.hyperos.marquee.R
@@ -11,83 +10,41 @@ import com.hyperos.marquee.config.SpConfig
 import com.hyperos.marquee.service.EdgeLightingService
 
 class SettingsActivity : AppCompatActivity() {
-    private lateinit var swEnabled: Switch
-    private lateinit var rbAlways: RadioButton
-    private lateinit var rbNotify: RadioButton
-    private lateinit var seekDuration: SeekBar
-    private lateinit var tvDur: TextView
-    private lateinit var seekW: SeekBar
-    private lateinit var tvW: TextView
-    private lateinit var seekH: SeekBar
-    private lateinit var tvH: TextView
-    private lateinit var seekOH: SeekBar
-    private lateinit var tvOH: TextView
-    private lateinit var seekOV: SeekBar
-    private lateinit var tvOV: TextView
-    private lateinit var spinnerStyle: Spinner
-    private lateinit var seekLW: SeekBar
-    private lateinit var tvLW: TextView
-    private lateinit var seekSpeed: SeekBar
-    private lateinit var tvSpd: TextView
-    private lateinit var swUnify: Switch
-    private lateinit var seekCTL: SeekBar
-    private lateinit var tvCTL: TextView
-    private lateinit var seekCTR: SeekBar
-    private lateinit var tvCTR: TextView
-    private lateinit var seekCBL: SeekBar
-    private lateinit var tvCBL: TextView
-    private lateinit var seekCBR: SeekBar
-    private lateinit var tvCBR: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
-        initViews()
-        loadConfig()
-        setupListeners()
-    }
 
-    private fun initViews() {
-        swEnabled = findViewById(R.id.swEnabled)
-        rbAlways = findViewById(R.id.rbAlways)
-        rbNotify = findViewById(R.id.rbNotify)
-        seekDuration = findViewById(R.id.seekDuration)
-        tvDur = findViewById(R.id.tvDur)
-        seekW = findViewById(R.id.seekW)
-        tvW = findViewById(R.id.tvW)
-        seekH = findViewById(R.id.seekH)
-        tvH = findViewById(R.id.tvH)
-        seekOH = findViewById(R.id.seekOH)
-        tvOH = findViewById(R.id.tvOH)
-        seekOV = findViewById(R.id.seekOV)
-        tvOV = findViewById(R.id.tvOV)
-        spinnerStyle = findViewById(R.id.spinnerStyle)
-        seekLW = findViewById(R.id.seekLW)
-        tvLW = findViewById(R.id.tvLW)
-        seekSpeed = findViewById(R.id.seekSpeed)
-        tvSpd = findViewById(R.id.tvSpd)
-        swUnify = findViewById(R.id.swUnify)
-        seekCTL = findViewById(R.id.seekCTL)
-        tvCTL = findViewById(R.id.tvCTL)
-        seekCTR = findViewById(R.id.seekCTR)
-        tvCTR = findViewById(R.id.tvCTR)
-        seekCBL = findViewById(R.id.seekCBL)
-        tvCBL = findViewById(R.id.tvCBL)
-        seekCBR = findViewById(R.id.seekCBR)
-        tvCBR = findViewById(R.id.tvCBR)
-
-        findViewById<Button>(R.id.btnSave).setOnClickListener { saveAndApply() }
-        findViewById<Button>(R.id.btnPreview).setOnClickListener {
-            startService(Intent(this, EdgeLightingService::class.java).apply {
-                action = EdgeLightingService.ACTION_SHOW
-                putExtra("package", "com.tencent.mm")
-                putExtra("text", "这是一条测试消息")
-            })
-        }
-    }
-
-    private fun loadConfig() {
         val ctx = this
+        val swEnabled = findViewById<Switch>(R.id.swEnabled)
+        val rbAlways = findViewById<RadioButton>(R.id.rbAlways)
+        val rbNotify = findViewById<RadioButton>(R.id.rbNotify)
+        val seekDuration = findViewById<SeekBar>(R.id.seekDuration)
+        val tvDur = findViewById<TextView>(R.id.tvDur)
+        val seekW = findViewById<SeekBar>(R.id.seekW)
+        val tvW = findViewById<TextView>(R.id.tvW)
+        val seekH = findViewById<SeekBar>(R.id.seekH)
+        val tvH = findViewById<TextView>(R.id.tvH)
+        val seekOH = findViewById<SeekBar>(R.id.seekOH)
+        val tvOH = findViewById<TextView>(R.id.tvOH)
+        val seekOV = findViewById<SeekBar>(R.id.seekOV)
+        val tvOV = findViewById<TextView>(R.id.tvOV)
+        val spinnerStyle = findViewById<Spinner>(R.id.spinnerStyle)
+        val seekLW = findViewById<SeekBar>(R.id.seekLW)
+        val tvLW = findViewById<TextView>(R.id.tvLW)
+        val seekSpeed = findViewById<SeekBar>(R.id.seekSpeed)
+        val tvSpd = findViewById<TextView>(R.id.tvSpd)
+        val swUnify = findViewById<Switch>(R.id.swUnify)
+        val seekCTL = findViewById<SeekBar>(R.id.seekCTL)
+        val tvCTL = findViewById<TextView>(R.id.tvCTL)
+        val seekCTR = findViewById<SeekBar>(R.id.seekCTR)
+        val tvCTR = findViewById<TextView>(R.id.tvCTR)
+        val seekCBL = findViewById<SeekBar>(R.id.seekCBL)
+        val tvCBL = findViewById<TextView>(R.id.tvCBL)
+        val seekCBR = findViewById<SeekBar>(R.id.seekCBR)
+        val tvCBR = findViewById<TextView>(R.id.tvCBR)
+
+        // 加载配置
         swEnabled.isChecked = SpConfig.isEnabled(ctx)
         if (SpConfig.getDisplayMode(ctx) == 0) rbAlways.isChecked = true else rbNotify.isChecked = true
         seekDuration.progress = SpConfig.getDuration(ctx)
@@ -115,83 +72,61 @@ class SettingsActivity : AppCompatActivity() {
         tvCBL.text = "${SpConfig.getCornerBL(ctx)}dp"
         seekCBR.progress = SpConfig.getCornerBR(ctx)
         tvCBR.text = "${SpConfig.getCornerBR(ctx)}dp"
-    }
 
-    private fun setupListeners() {
-        seekDuration.setOnSeekBarChangeListener(object : SimpleSeekBar() {
+        // SeekBar 监听
+        val seekListener = object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(s: SeekBar?, p: Int, from: Boolean) {
-                tvDur.text = "${p}s"
+                when (s?.id) {
+                    R.id.seekDuration -> tvDur.text = "${p}s"
+                    R.id.seekW -> tvW.text = if (p == 0) "全屏" else "$p"
+                    R.id.seekH -> tvH.text = if (p == 0) "全屏" else "$p"
+                    R.id.seekOH -> tvOH.text = "${p - 300}"
+                    R.id.seekOV -> tvOV.text = "${p - 300}"
+                    R.id.seekLW -> tvLW.text = String.format("%.1fdp", p / 2f)
+                    R.id.seekSpeed -> tvSpd.text = String.format("%.1f", p / 2f)
+                    R.id.seekCTL -> tvCTL.text = "${p}dp"
+                    R.id.seekCTR -> tvCTR.text = "${p}dp"
+                    R.id.seekCBL -> tvCBL.text = "${p}dp"
+                    R.id.seekCBR -> tvCBR.text = "${p}dp"
+                }
             }
-        })
-        seekW.setOnSeekBarChangeListener(object : SimpleSeekBar() {
-            override fun onProgressChanged(s: SeekBar?, p: Int, from: Boolean) {
-                tvW.text = if (p == 0) "全屏" else "$p"
-            }
-        })
-        seekH.setOnSeekBarChangeListener(object : SimpleSeekBar() {
-            override fun onProgressChanged(s: SeekBar?, p: Int, from: Boolean) {
-                tvH.text = if (p == 0) "全屏" else "$p"
-            }
-        })
-        seekOH.setOnSeekBarChangeListener(object : SimpleSeekBar() {
-            override fun onProgressChanged(s: SeekBar?, p: Int, from: Boolean) {
-                tvOH.text = "${p - 300}"
-            }
-        })
-        seekOV.setOnSeekBarChangeListener(object : SimpleSeekBar() {
-            override fun onProgressChanged(s: SeekBar?, p: Int, from: Boolean) {
-                tvOV.text = "${p - 300}"
-            }
-        })
-        seekLW.setOnSeekBarChangeListener(object : SimpleSeekBar() {
-            override fun onProgressChanged(s: SeekBar?, p: Int, from: Boolean) {
-                tvLW.text = String.format("%.1fdp", p / 2f)
-            }
-        })
-        seekSpeed.setOnSeekBarChangeListener(object : SimpleSeekBar() {
-            override fun onProgressChanged(s: SeekBar?, p: Int, from: Boolean) {
-                tvSpd.text = String.format("%.1f", p / 2f)
-            }
-        })
-        seekCTL.setOnSeekBarChangeListener(object : SimpleSeekBar() {
-            override fun onProgressChanged(s: SeekBar?, p: Int, from: Boolean) { tvCTL.text = "${p}dp" }
-        })
-        seekCTR.setOnSeekBarChangeListener(object : SimpleSeekBar() {
-            override fun onProgressChanged(s: SeekBar?, p: Int, from: Boolean) { tvCTR.text = "${p}dp" }
-        })
-        seekCBL.setOnSeekBarChangeListener(object : SimpleSeekBar() {
-            override fun onProgressChanged(s: SeekBar?, p: Int, from: Boolean) { tvCBL.text = "${p}dp" }
-        })
-        seekCBR.setOnSeekBarChangeListener(object : SimpleSeekBar() {
-            override fun onProgressChanged(s: SeekBar?, p: Int, from: Boolean) { tvCBR.text = "${p}dp" }
-        })
-    }
+            override fun onStartTrackingTouch(s: SeekBar?) {}
+            override fun onStopTrackingTouch(s: SeekBar?) {}
+        }
 
-    private fun saveAndApply() {
-        val ed = SpConfig.prefs(this).edit()
-        ed.putBoolean(SpConfig.KEY_ENABLED, swEnabled.isChecked)
-        ed.putInt(SpConfig.KEY_DISPLAY_MODE, if (rbAlways.isChecked) 0 else 1)
-        ed.putInt(SpConfig.KEY_DURATION, seekDuration.progress)
-        ed.putInt(SpConfig.KEY_WIDTH, seekW.progress)
-        ed.putInt(SpConfig.KEY_HEIGHT, seekH.progress)
-        ed.putInt(SpConfig.KEY_OFFSET_H, seekOH.progress - 300)
-        ed.putInt(SpConfig.KEY_OFFSET_V, seekOV.progress - 300)
-        ed.putString(SpConfig.KEY_STYLE, resources.getStringArray(R.array.style_values)[spinnerStyle.selectedItemPosition])
-        ed.putFloat(SpConfig.KEY_LINE_WIDTH, seekLW.progress / 2f)
-        ed.putFloat(SpConfig.KEY_SPEED, seekSpeed.progress / 2f)
-        ed.putBoolean(SpConfig.KEY_UNIFY_CORNER, swUnify.isChecked)
-        ed.putInt(SpConfig.KEY_CORNER_TL, seekCTL.progress)
-        ed.putInt(SpConfig.KEY_CORNER_TR, seekCTR.progress)
-        ed.putInt(SpConfig.KEY_CORNER_BL, seekCBL.progress)
-        ed.putInt(SpConfig.KEY_CORNER_BR, seekCBR.progress)
-        ed.apply()
-        ConfigProvider.notifyChange(this)
-        Toast.makeText(this, "配置已保存", Toast.LENGTH_SHORT).show()
-    }
+        listOf(seekDuration, seekW, seekH, seekOH, seekOV, seekLW, seekSpeed,
+            seekCTL, seekCTR, seekCBL, seekCBR).forEach { it.setOnSeekBarChangeListener(seekListener) }
 
-    private open class SimpleSeekBar : SeekBar.OnSeekBarChangeListener {
-        override fun onProgressChanged(s: SeekBar?, p: Int, from: Boolean) {}
-        override fun onStartTrackingTouch(s: SeekBar?) {}
-        override fun onStopTrackingTouch(s: SeekBar?) {}
+        // 保存按钮
+        findViewById<android.widget.Button>(R.id.btnSave).setOnClickListener {
+            val ed = SpConfig.prefs(ctx).edit()
+            ed.putBoolean(SpConfig.KEY_ENABLED, swEnabled.isChecked)
+            ed.putInt(SpConfig.KEY_DISPLAY_MODE, if (rbAlways.isChecked) 0 else 1)
+            ed.putInt(SpConfig.KEY_DURATION, seekDuration.progress)
+            ed.putInt(SpConfig.KEY_WIDTH, seekW.progress)
+            ed.putInt(SpConfig.KEY_HEIGHT, seekH.progress)
+            ed.putInt(SpConfig.KEY_OFFSET_H, seekOH.progress - 300)
+            ed.putInt(SpConfig.KEY_OFFSET_V, seekOV.progress - 300)
+            ed.putString(SpConfig.KEY_STYLE, resources.getStringArray(R.array.style_values)[spinnerStyle.selectedItemPosition])
+            ed.putFloat(SpConfig.KEY_LINE_WIDTH, seekLW.progress / 2f)
+            ed.putFloat(SpConfig.KEY_SPEED, seekSpeed.progress / 2f)
+            ed.putBoolean(SpConfig.KEY_UNIFY_CORNER, swUnify.isChecked)
+            ed.putInt(SpConfig.KEY_CORNER_TL, seekCTL.progress)
+            ed.putInt(SpConfig.KEY_CORNER_TR, seekCTR.progress)
+            ed.putInt(SpConfig.KEY_CORNER_BL, seekCBL.progress)
+            ed.putInt(SpConfig.KEY_CORNER_BR, seekCBR.progress)
+            ed.apply()
+            ConfigProvider.notifyChange(ctx)
+            Toast.makeText(ctx, "配置已保存", Toast.LENGTH_SHORT).show()
+        }
+
+        // 预览按钮
+        findViewById<android.widget.Button>(R.id.btnPreview).setOnClickListener {
+            val intent = Intent(ctx, EdgeLightingService::class.java)
+            intent.action = EdgeLightingService.ACTION_SHOW
+            intent.putExtra("package", "com.tencent.mm")
+            intent.putExtra("text", "这是一条测试消息")
+            startService(intent)
+        }
     }
 }

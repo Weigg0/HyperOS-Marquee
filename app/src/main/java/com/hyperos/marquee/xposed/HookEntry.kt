@@ -20,14 +20,11 @@ class HookEntry : IXposedHookLoadPackage {
 
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
         if (lpparam.packageName != PKG_SYSTEMUI) return
-
         val classLoader = lpparam.classLoader
         var hooked = false
-
         hooked = tryHookXiaomi(classLoader)
         if (!hooked) hooked = tryHookAosp(classLoader)
         if (!hooked) hooked = tryHookServiceCommand(classLoader)
-
         XposedBridge.log("$TAG init done, hooked=$hooked")
     }
 
@@ -46,18 +43,9 @@ class HookEntry : IXposedHookLoadPackage {
                         try {
                             val entry: Any = param.args[0]
                             val notification: StatusBarNotification = getNotifFromEntry(entry) ?: return
-                            val pkg: String = notification.packageName ?: return
-                            val extras = notification.extras ?: return
-                            val title: String = extras.getCharSequence(Notification.EXTRA_TITLE)?.toString() ?: ""
-                            val text: String = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString() ?: ""
-                            val content: String = if (title.isNotEmpty() && text.isNotEmpty()) "$title: $text"
-                                else if (text.isNotEmpty()) text else title
-                            if (content.isNotEmpty()) {
-                                val ctx: Context? = param.thisObject as? Context
-                                sendShow(ctx, pkg, content)
-                            }
+                            processNotification(param.thisObject as? Context, notification)
                         } catch (e: Throwable) {
-                            XposedBridge.log("$TAG xiaomi hook error: ${e.message}")
+                            XposedBridge.log("$TAG xiaomi error: ${e.message}")
                         }
                     }
                 })
@@ -82,10 +70,8 @@ class HookEntry : IXposedHookLoadPackage {
 
     private fun getNotifFromEntry(entry: Any?): StatusBarNotification? {
         try {
-            val rankingMethod = entry?.javaClass?.getMethod("getRanking")
-            val ranking = rankingMethod?.invoke(entry)
-            val sbnMethod = ranking?.javaClass?.getMethod("getSbn")
-            val sbn = sbnMethod?.invoke(ranking)
+            val ranking = entry?.javaClass?.getMethod("getRanking")?.invoke(entry)
+            val sbn = ranking?.javaClass?.getMethod("getSbn")?.invoke(ranking)
             if (sbn is StatusBarNotification) return sbn
         } catch (_: Throwable) { }
         try {
@@ -110,24 +96,14 @@ class HookEntry : IXposedHookLoadPackage {
             XposedBridge.hookMethod(method, object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     try {
-                        val sbn: StatusBarNotification = param.args[0] as StatusBarNotification
-                        val pkg: String = sbn.packageName ?: return
-                        val extras = sbn.notification?.extras ?: return
-                        val title: String = extras.getCharSequence(Notification.EXTRA_TITLE)?.toString() ?: ""
-                        val text: String = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString() ?: ""
-                        val content: String = if (title.isNotEmpty() && text.isNotEmpty()) "$title: $text"
-                            else if (text.isNotEmpty()) text else title
-                        if (content.isNotEmpty()) {
-                            @Suppress("UNCHECKED_CAST")
-                            val ctx: Context? = XposedHelpers.callMethod(sbn, "getContext") as? Context
-                            sendShow(ctx, pkg, content)
-                        }
+                        val sbn = param.args[0] as StatusBarNotification
+                        processNotification(null, sbn)
                     } catch (e: Throwable) {
-                        XposedBridge.log("$TAG aosp hook error: ${e.message}")
+                        XposedBridge.log("$TAG aosp error: ${e.message}")
                     }
                 }
             })
-            XposedBridge.log("$TAG hooked AOSP NotificationListenerWrapper.onNotificationPosted")
+            XposedBridge.log("$TAG hooked AOSP NotificationListenerWrapper")
             return true
         } catch (_: Throwable) { return false }
     }
@@ -145,24 +121,35 @@ class HookEntry : IXposedHookLoadPackage {
             )
             XposedBridge.hookMethod(method, object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
-                    XposedBridge.log("$TAG service.onStartCommand triggered (fallback)")
+                    XposedBridge.log("$TAG service.onStartCommand (fallback)")
                 }
             })
-            XposedBridge.log("$TAG hooked NotificationListenerService.onStartCommand (fallback)")
+            XposedBridge.log("$TAG hooked NotificationListenerService.onStartCommand")
             return true
         } catch (_: Throwable) { return false }
     }
 
-    private fun sendShow(ctx: Context?, pkg: String, text: String) {
-        if (ctx == null) return
+    private fun processNotification(ctx: Context?, sbn: StatusBarNotification) {
+        val pkg = sbn.packageName ?: return
+        val notification = sbn.notification ?: return
+        val extras = notification.extras ?: return
+        val title = extras.getCharSequence(Notification.EXTRA_TITLE)?.toString() ?: ""
+        val text = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString() ?: ""
+        val content = when {
+            title.isNotEmpty() && text.isNotEmpty() -> "$title: $text"
+            text.isNotEmpty() -> text
+            title.isNotEmpty() -> title
+            else -> return
+        }
+        val context = ctx ?: sbn.context
         try {
             val intent = Intent(ACTION_SHOW)
             intent.setPackage("com.hyperos.marquee")
             intent.putExtra("package", pkg)
-            intent.putExtra("text", text)
-            ctx.sendBroadcast(intent)
+            intent.putExtra("text", content)
+            context.sendBroadcast(intent)
         } catch (e: Throwable) {
-            XposedBridge.log("$TAG send broadcast error: ${e.message}")
+            XposedBridge.log("$TAG broadcast error: ${e.message}")
         }
     }
 }
