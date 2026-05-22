@@ -12,7 +12,7 @@
         android:theme="@android:style/Theme.Material.Light.NoActionBar">
 
         <activity
-            android:name=".MainActivity"
+            android:name=".settings.SettingsActivity"
             android:exported="true"
             android:launchMode="singleTask">
             <intent-filter>
