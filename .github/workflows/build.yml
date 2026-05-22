@@ -34,13 +34,17 @@ jobs:
         gradle wrapper --gradle-version 8.11.1
         chmod +x gradlew
         ./gradlew assembleDebug --no-daemon
-        echo "=== APK 文件 ==="
-        find app/build/outputs -name "*.apk" -type f
-        cp app/build/outputs/apk/debug/app-debug.apk /tmp/HyperOS-Marquee.apk || true
+
+    - name: Find APK
+      run: |
+        echo "=== 查找所有 APK 文件 ==="
+        find . -name "*.apk" -type f -exec ls -lh {} \;
+        echo "=== 查找 build/outputs 目录 ==="
+        find app/build/outputs -type f 2>/dev/null
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: HyperOS-Marquee-debug
-        path: /tmp/HyperOS-Marquee.apk
-        if-no-files-found: warn
+        name: HyperOS-Marquee
+        path: app/build/outputs/apk/debug/*.apk
+        if-no-files-found: error
