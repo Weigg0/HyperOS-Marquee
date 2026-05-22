@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.hyperos.marquee.R
-import com.hyperos.marquee.config.ConfigProvider
 import com.hyperos.marquee.config.SpConfig
 import com.hyperos.marquee.service.EdgeLightingService
 
@@ -44,7 +43,6 @@ class SettingsActivity : AppCompatActivity() {
         val seekCBR = findViewById<SeekBar>(R.id.seekCBR)
         val tvCBR = findViewById<TextView>(R.id.tvCBR)
 
-        // 加载配置
         swEnabled.isChecked = SpConfig.isEnabled(ctx)
         if (SpConfig.getDisplayMode(ctx) == 0) rbAlways.isChecked = true else rbNotify.isChecked = true
         seekDuration.progress = SpConfig.getDuration(ctx)
@@ -73,7 +71,6 @@ class SettingsActivity : AppCompatActivity() {
         seekCBR.progress = SpConfig.getCornerBR(ctx)
         tvCBR.text = "${SpConfig.getCornerBR(ctx)}dp"
 
-        // SeekBar 监听
         val seekListener = object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(s: SeekBar?, p: Int, from: Boolean) {
                 when (s?.id) {
@@ -93,12 +90,10 @@ class SettingsActivity : AppCompatActivity() {
             override fun onStartTrackingTouch(s: SeekBar?) {}
             override fun onStopTrackingTouch(s: SeekBar?) {}
         }
-
         listOf(seekDuration, seekW, seekH, seekOH, seekOV, seekLW, seekSpeed,
             seekCTL, seekCTR, seekCBL, seekCBR).forEach { it.setOnSeekBarChangeListener(seekListener) }
 
-        // 保存按钮
-        findViewById<android.widget.Button>(R.id.btnSave).setOnClickListener {
+        findViewById<Button>(R.id.btnSave).setOnClickListener {
             val ed = SpConfig.prefs(ctx).edit()
             ed.putBoolean(SpConfig.KEY_ENABLED, swEnabled.isChecked)
             ed.putInt(SpConfig.KEY_DISPLAY_MODE, if (rbAlways.isChecked) 0 else 1)
@@ -116,12 +111,10 @@ class SettingsActivity : AppCompatActivity() {
             ed.putInt(SpConfig.KEY_CORNER_BL, seekCBL.progress)
             ed.putInt(SpConfig.KEY_CORNER_BR, seekCBR.progress)
             ed.apply()
-            ConfigProvider.notifyChange(ctx)
             Toast.makeText(ctx, "配置已保存", Toast.LENGTH_SHORT).show()
         }
 
-        // 预览按钮
-        findViewById<android.widget.Button>(R.id.btnPreview).setOnClickListener {
+        findViewById<Button>(R.id.btnPreview).setOnClickListener {
             val intent = Intent(ctx, EdgeLightingService::class.java)
             intent.action = EdgeLightingService.ACTION_SHOW
             intent.putExtra("package", "com.tencent.mm")

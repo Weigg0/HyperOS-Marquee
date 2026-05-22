@@ -141,7 +141,11 @@ class HookEntry : IXposedHookLoadPackage {
             title.isNotEmpty() -> title
             else -> return
         }
-        val context = ctx ?: sbn.context
+        // 获取 Context: 优先用传入的，其次反射 getContext()
+        val context = ctx ?: try {
+            val m = sbn.javaClass.getMethod("getContext")
+            m.invoke(sbn) as? Context
+        } catch (_: Throwable) { null } ?: return
         try {
             val intent = Intent(ACTION_SHOW)
             intent.setPackage("com.hyperos.marquee")
