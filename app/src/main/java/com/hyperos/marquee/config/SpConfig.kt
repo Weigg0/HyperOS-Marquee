@@ -23,7 +23,7 @@ object SpConfig {
     const val KEY_CORNER_BR = "corner_br"
 
     fun prefs(ctx: Context): SharedPreferences =
-        ctx.getSharedPreferences(PREF_NAME, Context.MODE_WORLD_READABLE)
+        ctx.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
 
     fun isEnabled(ctx: Context) = prefs(ctx).getBoolean(KEY_ENABLED, true)
     fun getDisplayMode(ctx: Context) = prefs(ctx).getInt(KEY_DISPLAY_MODE, 1)
