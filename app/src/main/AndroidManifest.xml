@@ -3,8 +3,8 @@
     package="com.hyperos.marquee">
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
 
     <application
@@ -25,7 +25,8 @@
 
         <service
             android:name=".service.EdgeLightingService"
-            android:exported="true">
+            android:exported="true"
+            android:foregroundServiceType="specialUse">
             <intent-filter>
                 <action android:name="com.hyperos.marquee.SHOW"/>
             </intent-filter>

@@ -6,6 +6,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.graphics.PixelFormat
 import android.os.Build
 import android.os.IBinder
@@ -33,13 +34,16 @@ class EdgeLightingService : Service() {
         super.onCreate()
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
         createNotificationChannel()
-        startForeground(NOTIF_ID, buildNotification())
+        if (Build.VERSION.SDK_INT >= 34) {
+            startForeground(NOTIF_ID, buildNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+        } else {
+            @Suppress("DEPRECATION")
+            startForeground(NOTIF_ID, buildNotification())
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_SHOW) {
-            val pkg = intent.getStringExtra("package") ?: ""
-            val text = intent.getStringExtra("text") ?: ""
             val duration = SpConfig.getDuration(this) * 1000L
             showLighting(duration)
         }
@@ -58,6 +62,7 @@ class EdgeLightingService : Service() {
             type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
             else
+                @Suppress("DEPRECATION")
                 WindowManager.LayoutParams.TYPE_PHONE
             format = PixelFormat.TRANSLUCENT
             flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
