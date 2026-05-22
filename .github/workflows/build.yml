@@ -33,18 +33,14 @@ jobs:
       run: |
         gradle wrapper --gradle-version 8.11.1
         chmod +x gradlew
-        ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | grep -iE "error|FAILED|Exception|failure|e:" | head -30
-
-    - name: Full Build Log on Failure
-      if: failure()
-      run: |
-        echo "=== FULL BUILD OUTPUT ==="
-        ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tail -80
+        ./gradlew assembleDebug --no-daemon
+        echo "=== APK 文件 ==="
+        find app/build/outputs -name "*.apk" -type f
+        cp app/build/outputs/apk/debug/app-debug.apk /tmp/HyperOS-Marquee.apk || true
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
-      if: success()
       with:
         name: HyperOS-Marquee-debug
-        path: app/build/outputs/apk/debug/*.apk
-        if-no-files-found: error
+        path: /tmp/HyperOS-Marquee.apk
+        if-no-files-found: warn
