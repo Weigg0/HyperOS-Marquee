@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.Marquee" parent="android:Theme.Light">
-        <item name="android:windowIsFloating">true</item>
+    <style name="Theme.Marquee" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowBackground">@android:color/transparent</item>
     </style>
 </resources>
