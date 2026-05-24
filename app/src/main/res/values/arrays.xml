@@ -1,21 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- LSPosed 作用域：仅作用于 SystemUI -->
     <string-array name="xposed_scope">
         <item>com.android.systemui</item>
     </string-array>
-
-    <!-- 跑马灯样式列表 -->
     <string-array name="style_names">
-        <item>单色光点</item><item>彩虹·固定</item><item>彩虹·顺时针</item>
-        <item>彩虹·逆时针</item><item>星星拖尾</item><item>虚线流动</item>
-        <item>点阵流动</item><item>波纹传播</item><item>星光闪烁</item>
-        <item>双色对向</item><item>灵动光晕</item>
+        <item>单色光点</item>
+        <item>彩虹·固定</item>
+        <item>彩虹·顺时针</item>
+        <item>彩虹·逆时针</item>
+        <item>星星拖尾</item>
+        <item>虚线流动</item>
+        <item>点阵流动</item>
+        <item>波纹传播</item>
+        <item>星光闪烁</item>
+        <item>双色对向</item>
+        <item>灵动光晕</item>
     </string-array>
     <string-array name="style_values">
-        <item>single_dot</item><item>rainbow_fixed</item><item>rainbow_cw</item>
-        <item>rainbow_ccw</item><item>star_trail</item><item>dashed_flow</item>
-        <item>dot_matrix</item><item>ripple</item><item>starlight</item>
-        <item>dual_color</item><item>dynamic_glow</item>
+        <item>single_dot</item>
+        <item>rainbow_fixed</item>
+        <item>rainbow_cw</item>
+        <item>rainbow_ccw</item>
+        <item>star_trail</item>
+        <item>dashed_flow</item>
+        <item>dot_matrix</item>
+        <item>ripple</item>
+        <item>starlight</item>
+        <item>dual_color</item>
+        <item>dynamic_glow</item>
     </string-array>
 </resources>
